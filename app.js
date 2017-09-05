@@ -4,42 +4,36 @@ var express = require('express'),
 //  server = http.createServer(app),
   bodyParser = require('body-parser'),
   methodOverride = require('method-override'),
-  mongoose = require('mongoose');
+  mongoose = require('mongoose'),
+  config = require('./config.js'),
+  morgan = require('morgan')
 
+//config variables and routes
+var port = process.env.PORT || 8080;
+var users = require('./routes/users.js');
+var index = require('./routes/index.js');
+var tvshows = require('./routes/tvshows.js');
+
+app.use(morgan('dev'));
+app.set('supersecret',config.secret);
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(methodOverride());
 
-var router = express.Router();
-
-router.get('/',(req,res)=>{
-  res.send('Hello world');
-});
-
-app.use(router);
-
-var TVShowCtrl = require('./controllers/tvshows.js');
-
-//API routes
-var tvshows = express.Router();
-
-tvshows.route('/tvshows')
-  .get(TVShowCtrl.findAllTVShows)
-  .post(TVShowCtrl.addTVShow);
-
-tvshows.route('/tvshows/:id')
-  .get(TVShowCtrl.findById)
-  .put(TVShowCtrl.updateTVShow)
-  .delete(TVShowCtrl.deleteTVShow);
-
+//routes
+app.use('/',index);
+var middleware = require('./controllers/middleware.js');
+app.use(middleware);
+app.use('/users',users);
 app.use('/api',tvshows);
 
-mongoose.connect('mongodb://127.0.0.1:27017/tvshows',{},function(err,res){
+//connect to db
+mongoose.connect(config.database,{},function(err,res){
   if(err){
     console.log('Error: connecting to Database. ' + err);
   } else {
-    app.listen(3000, function(){
-      console.log("Node server running on http://localhost:3000");
+    app.listen(port, function(){
+      console.log("Node server running on http://localhost:" + port);
     });
   }
 });

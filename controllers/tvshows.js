@@ -22,9 +22,6 @@ exports.findById = function(req,res){
 
 //POST - insert one record in the db
 exports.addTVShow = function(req,res){
-  console.log('POST');
-  console.log(req.body);
-
   var tvshow = new TVShow({
     title:    req.body.title,
 		year: 	  req.body.year,
@@ -35,7 +32,7 @@ exports.addTVShow = function(req,res){
 		summary:  req.body.summary
   });
 
-  tvshow.save(function(err,tvshow){
+    tvshow.save(function(err,tvshow){
     if(err) return res.send(500,err.message);
     res.status(200).send(tvshow);
   });
